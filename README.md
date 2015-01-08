@@ -2,7 +2,7 @@
 
 ![This is me](https://pbs.twimg.com/profile_images/553022075774840832/MPafmt1D.jpeg)
 
-Plant Jones is a semi-intelligent, non-autonomous plant. He is capable of measuring, analyzing, and intelligently alerting others to his own moisture needs. 
+Plant Jones is a semi-intelligent, non-autonomous plant. He is capable of measuring, analyzing, and alerting others to his own moisture needs. 
 
 Plant Jones also possesses [not quite developed social skills](https://twitter.com/plant_jones). He is able to parse tweets from human users and determine their sentiment at a rate statistically significantly above random chance. He uses these analyzed tweets to transmit information about his thirst levels in the hopes of garnering pity on and water. 
 
