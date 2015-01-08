@@ -2,9 +2,9 @@
 
 ![This is me](https://pbs.twimg.com/profile_images/553022075774840832/MPafmt1D.jpeg)
 
-Plant Jones is a highly intelligent, semi-autonomous plant organism. He is capable of measuring, analyzing, and intelligently responding to his own moisture needs. This can be thought of as analagous to the 'thirst' behavior exhibited in vertebrates. 
+Plant Jones is a semi-intelligent, non-autonomous plant. He is capable of measuring, analyzing, and alerting others to his own moisture needs. 
 
-Plant Jones also possesses [highly developed social skills](https://twitter.com/plant_jones). He is able to parse tweets from human users and determine their sentiment. He uses these analyzed tweets to transmit information about his own 'thirst' levels in an appropriate manner. 
+Plant Jones also possesses [not quite developed social skills](https://twitter.com/plant_jones). He is able to parse tweets from human users and determine their sentiment at a rate statistically significantly above random chance. He uses these analyzed tweets to transmit information about his thirst levels in the hopes of garnering pity and water. 
 
 Parts
 ----
@@ -28,4 +28,4 @@ We use the Rasberry Pi Model B+ running raspbian. The pi recieves the moisture r
 
 Sentiment Analysis
 ----
-The model is an SVM from scikit-learn. We use this [Twitter Sentiment Analysis dataset.](http://thinknook.com/wp-content/uploads/2012/09/Sentiment-Analysis-Dataset.zip). We used a simple bag of words model because we didn't try very hard. We used only a subset of the data for training (10k is quick, 100k is fine). Be sure to randomly shuffle the dataset as it is in alphabetical order.
+The model is an SVM from scikit-learn. We use this [Twitter Sentiment Analysis dataset](http://thinknook.com/wp-content/uploads/2012/09/Sentiment-Analysis-Dataset.zip). We used a simple bag of words model because we didn't try very hard. We used only a subset of the data for training (10k is quick, 100k is fine). Be sure to randomly shuffle the dataset as it is in alphabetical order.
