@@ -35,12 +35,12 @@ class MyStreamer(TwythonStreamer):
         if 'text' in data:
             ascii_tweet = data['text']
             utf_tweet = ascii_tweet.encode('utf-8')
-            model.predict(txt2vec.transform([str(utf_tweet)])) 
+            sentiment = model.predict(txt2vec.transform([str(utf_tweet)]))[0]
             # estimate the sentiment of the tweet
         #    blob = TextBlob(ascii_tweet)
         #    polarity = str(blob.polarity)
 
-            print (utf_tweet + '\t' + polarity + '\n')
+            print (utf_tweet + '\t' + sentiment + '\n')
             # Want to disconnect after the first result?
             # self.disconnect()
 
