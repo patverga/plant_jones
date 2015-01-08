@@ -16,7 +16,7 @@ Parts
 
 Arduino
 ----
-The moisture sensor is attached to the arduino on the 5v pin. Both the 
+The moisture sensor is attached to the arduino on the 5v pin and an analog pin (we use A5).
 
 Rasberry Pi
 ----
