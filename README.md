@@ -22,6 +22,8 @@ Wireless
 ----
 We use this [rf library](https://github.com/edoardoo/RF24) for both the pi and arduino. We based our code off of their examples ([rpi](https://github.com/edoardoo/RF24/blob/master/examples_RPi/gettingstarted.cpp) &  [arduino](https://github.com/edoardoo/RF24/blob/master/examples/GettingStarted/GettingStarted.ino)). Follow their github readme for wiring info.
 
+Note : We found if we tried to have a >= 1 minute delay between arduino transmissions, it would just silently stop transmitting.
+
 Rasberry Pi
 ----
 We use the Rasberry Pi Model B+ running raspbian. The pi recieves the moisture reading from the arduino every hour. If the moisture level is too low, Plant Jones scours twitter for negative tweets about water to display his sadness in a way relevant to his needs. If the moisture levels gain a sudden spike, Plant Jones tweets a positive tweet about water signaling how happy he is.
