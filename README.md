@@ -35,3 +35,5 @@ We base our sentiment analyis model on ["Mohammad, Saif M., Svetlana Kiritchenko
 We use the most discriminative subset of the features from the original paper, word and char ngrams and lexicon dictionaries. Following the original, we train an SVM model with tuned parameters: rbf kernel, C=100, gamma=.0001. This is all done in [scikit-learn](http://scikit-learn.org/stable/) with a little help from [nltk](http://www.nltk.org/).
 
 The training data was taken from [SemEval 2013 workshop Task 2-B](http://www.cs.york.ac.uk/semeval-2013/task2/index.php?id=data). Our F score on the development set is .65 (the full set of features in the paper gets .69).
+
+The model was trained on a desktop computer, serialized, and sent to the pi to save a long long time.
