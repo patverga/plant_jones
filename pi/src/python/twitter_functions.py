@@ -2,9 +2,8 @@
 import sys
 from twython import Twython
 from twython import TwythonStreamer
-from textblob import TextBlob
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.externals import joblib
+import joblib
 from sklearn import svm
 
 # your twitter consumer and access information
@@ -14,7 +13,7 @@ accessToken = '2959173920-PvIHay0j4KQicFml2MQXV2ZfDnWR1qbea55Qr0H'
 accessTokenSecret = 'Ky2XMQ46rZ6jj97O3PHYCL5RIAixRc0JQEWsufn1S7mA1'
 
 # sentiment analysis model
-txt2vec = joblib.load('saved_model/vectorizer.pickel')
+txt2vec = joblib.load('saved_model/vectorizer.pickle')
 model = joblib.load('saved_model/svm_model.pk1')
 
 
@@ -28,7 +27,7 @@ def sendTweet(tweetStr):
 class MyStreamer(TwythonStreamer):
     
     #    def __init__(self, **kwargs):
-    #    txt2vec = joblib.load('saved_model/vectorizer.pickel')
+    #    txt2vec = joblib.load('saved_model/vectorizer.pickle')
     #    model = joblib.load('saved_model/svm_model.pk1')
 
     def on_success(self, data):
@@ -37,8 +36,6 @@ class MyStreamer(TwythonStreamer):
             utf_tweet = ascii_tweet.encode('utf-8')
             sentiment = model.predict(txt2vec.transform([str(utf_tweet)]))[0]
             # estimate the sentiment of the tweet
-        #    blob = TextBlob(ascii_tweet)
-        #    polarity = str(blob.polarity)
 
             print (utf_tweet + '\t' + sentiment + '\n')
             # Want to disconnect after the first result?
