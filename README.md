@@ -30,4 +30,6 @@ We use the Rasberry Pi Model B+ running raspbian. The pi recieves the moisture r
 
 Sentiment Analysis
 ----
-The model is an SVM from scikit-learn. We use this [Twitter Sentiment Analysis dataset](http://thinknook.com/wp-content/uploads/2012/09/Sentiment-Analysis-Dataset.zip). We used a simple bag of words model because we didn't try very hard. We used only a subset of the data for training (10k is quick, 100k is fine). Be sure to randomly shuffle the dataset as it is in alphabetical order.
+    We base our sentiment analyis model on ['Mohammad, Saif M., Svetlana Kiritchenko, and Xiaodan Zhu. "NRC-Canada: Building the state-of-the-art in sentiment analysis of tweets." arXiv preprint arXiv:1308.6242 (2013).'](http://www.umiacs.umd.edu/~saif/WebPages/Abstracts/NRC-SentimentAnalysis.htm). 
+    
+    We use the most discriminative subset of the features from the original paper, word and char ngrams and lexicon dictionaries. Following the original, we train an SVM model. This is all done in [scikit-learn](http://scikit-learn.org/stable/) with a little help from [nltk](http://www.nltk.org/). The training data was taken from [SemEval 2013 workshop Task 2-B](http://www.cs.york.ac.uk/semeval-2013/task2/index.php?id=data).
