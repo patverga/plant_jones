@@ -4,7 +4,7 @@ prefix := /usr/local
 CCFLAGS=-Ofast -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -I/usr/include/python2.7
 
 # define all programs
-PROGRAMS = recieve_moisture
+PROGRAMS = recieve_moisture recieve_moisture2
 SOURCES = ${PROGRAMS:=.cpp}
 
 all: ${PROGRAMS} 
