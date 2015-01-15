@@ -1,7 +1,7 @@
 prefix := /usr/local
 
 # The recommended compiler flags for the Raspberry Pi
-CCFLAGS=-Ofast -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -I/usr/include/python2.7
+CCFLAGS=-Ofast -I/usr/include/python2.7
 
 # define all programs
 PROGRAMS = recieve_moisture
