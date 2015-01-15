@@ -36,4 +36,4 @@ We use the most discriminative subset of the features from the original paper, w
 
 The training data was taken from [SemEval 2013 workshop Task 2-B](http://www.cs.york.ac.uk/semeval-2013/task2/index.php?id=data). Our F score on the development set is .65 (the full set of features in the paper gets .69).
 
-The model was trained on a desktop computer, serialized, and sent to the pi to save a long long time.
+The model was trained on a desktop computer, serialized, and sent to the pi to save a long long time. If you do this, make sure your joblib versions match.
