@@ -63,5 +63,5 @@ def randomTweetFromStream(target_sentiment):
 
 
 if __name__ == "__main__":
-    sentiment = "negative" if sys.argv[1] == 0 else "positive"
+    sentiment = "negative" if sys.argv[1] == '0' else "positive"
     randomTweetFromStream(sentiment)
