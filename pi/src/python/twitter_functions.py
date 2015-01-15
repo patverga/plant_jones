@@ -5,7 +5,7 @@ from twython import Twython
 from twython import TwythonStreamer
 
 # sys.path.insert(0, '/home/pv/plant_jones_root/plant_jones/sentiment_analysis')
-from sentiment_analysis.create_sentiment_model import load_serial, create_vectors
+from sentiment_analysis.sentiment_analysis_model import load_serial, create_vectors
 
 # your twitter consumer and access information
 apiKey = 'bGM1BfpCh5d9UpsXFSAlvSRjE'
