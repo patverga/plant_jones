@@ -14,9 +14,6 @@ accessToken = '2959173920-PvIHay0j4KQicFml2MQXV2ZfDnWR1qbea55Qr0H'
 accessTokenSecret = 'Ky2XMQ46rZ6jj97O3PHYCL5RIAixRc0JQEWsufn1S7mA1'
 saved_model_dir = 'saved_model/'
 
-# sentiment analysis model
-model, char_vectorizer, word_vectorizer, lexicons = load_serial()
-
 # post a tweet to @plant_jones
 def sendTweet(tweetStr):
     api = Twython(apiKey, apiSecret, accessToken, accessTokenSecret)
@@ -28,16 +25,24 @@ def sendTweet(tweetStr):
 class MyStreamer(TwythonStreamer):
 
     target_sentiment = "negative"
+    model = None
+    char_vectorizer = None
+    word_vectorizer = None
+    lexicons = None
 
-    def set_sentiment(self, target_sentiment):
+    def initialize(self, target_sentiment):
         MyStreamer.target_sentiment = "\""+target_sentiment+"\""
+        # sentiment analysis model
+        MyStreamer.model, MyStreamer.char_vectorizer, \
+        MyStreamer.word_vectorizer, MyStreamer.lexicons = load_serial()
 
     def on_success(self, data):
         if 'text' in data:
             ascii_tweet = data['text']
             utf_tweet = ascii_tweet.encode('utf-8')
-            vectors = create_vectors([utf_tweet], word_vectorizer, char_vectorizer, lexicons)
-            tweet_sentiment = model.predict(vectors)[0]
+            vectors = create_vectors(
+                [utf_tweet], self.word_vectorizer, self.char_vectorizer, self.lexicons)
+            tweet_sentiment = self.model.predict(vectors)[0]
             # estimate the sentiment of the tweet
 
             if tweet_sentiment == self.target_sentiment:
@@ -53,7 +58,7 @@ class MyStreamer(TwythonStreamer):
 # grab a random tweet
 def randomTweetFromStream(target_sentiment):
     stream = MyStreamer(apiKey, apiSecret, accessToken, accessTokenSecret)
-    stream.set_sentiment(target_sentiment)
+    stream.initialize(target_sentiment)
     stream.statuses.filter(track='water', language='en')
 
 
