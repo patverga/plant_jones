@@ -158,20 +158,16 @@ if __name__ == "__main__":
     print ('Loading data')
     with open(train_data_file, 'r') as f:
         train_data, train_labels = zip(*[(row[3], row[2]) for row in csv.reader(f, delimiter='\t', quotechar='|')])
-    # with open('data/train-large', 'r') as f:
-    #     train_data2, train_labels2 = zip(*[(row[3], row[2]) for row in csv.reader(f, delimiter='\t', quotechar='|')])
-    # train_data = train_data +train_data2[:50000]
-    # train_labels = train_labels+train_labels2[:50000]
 
     with open(test_data_file, 'r') as f:
         test_data, test_labels = zip(*[(row[3], row[2]) for row in csv.reader(f, delimiter='\t', quotechar='|')])
 
-    # tune model
+    #### tune model ####
     # model, char_vectorizer, word_vectorizer, lexicons = load_serial()
     # tune_model(train_data, train_labels)
 
-    # # train model
+    #### train model ####
     model, char_vectorizer, word_vectorizer, lexicons = train_model(train_data, train_labels, True)
 
-    # # test model
+    #### test model ####
     test_model(test_data, test_labels, model, char_vectorizer, word_vectorizer, lexicons)
