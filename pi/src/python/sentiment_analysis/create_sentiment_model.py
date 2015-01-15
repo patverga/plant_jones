@@ -2,6 +2,7 @@ import csv
 import gzip
 
 import nltk
+import joblib
 import numpy as np
 import scipy.sparse as sp
 import itertools
@@ -9,7 +10,6 @@ import itertools
 from numpy import array
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cross_validation import cross_val_score
-from sklearn.externals import joblib
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import classification_report
 from sklearn.svm import SVC
@@ -22,7 +22,7 @@ saved_model_dir = 'sentiment_analysis/saved_model/'
 
 def create_vectors(data, word_vectorizer, char_vectorizer, lexicons):
     #### NGram features ####
-    print "Getting ngram features"
+    # print "Getting ngram features"
     word_vectors = word_vectorizer.transform(data)
     char_vectors = char_vectorizer.transform(data)
 
@@ -31,7 +31,7 @@ def create_vectors(data, word_vectorizer, char_vectorizer, lexicons):
     unigram_dict, bigram_dict, pair_dict, pair_unigram_set = lexicons
 
     # convert each tweet to a list of sentiment scores based on tokens / bigrams / and skipgrams
-    print "Creating lexicon features."
+    # print "Creating lexicon features."
     unigram_token_scores = [[unigram_dict.get(token) for token in tokens if token in unigram_dict] for tokens in
                             tokenized_data]
     bigram_data = [[' '.join(bigram) for bigram in nltk.bigrams(tokens)] for tokens in tokenized_data]
