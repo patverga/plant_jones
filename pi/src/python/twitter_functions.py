@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 import sys
+
 from twython import Twython
 from twython import TwythonStreamer
-from sklearn.feature_extraction.text import CountVectorizer
-import joblib
-from sklearn import svm
+
+# sys.path.insert(0, '/home/pv/plant_jones_root/plant_jones/sentiment_analysis')
+from sentiment_analysis.create_sentiment_model import load_serial, create_vectors
 
 # your twitter consumer and access information
 apiKey = 'bGM1BfpCh5d9UpsXFSAlvSRjE'
 apiSecret = 'SquBbg9kQ1Zz6YxmNG2vJwlnoL8zinLdXEgdanFb4686KOmPms'
 accessToken = '2959173920-PvIHay0j4KQicFml2MQXV2ZfDnWR1qbea55Qr0H'
 accessTokenSecret = 'Ky2XMQ46rZ6jj97O3PHYCL5RIAixRc0JQEWsufn1S7mA1'
+saved_model_dir = 'saved_model/'
 
 # sentiment analysis model
-txt2vec = joblib.load('saved_model/vectorizer.pickle')
-model = joblib.load('saved_model/svm_model.pk1')
-
+model, char_vectorizer, word_vectorizer, lexicons = load_serial()
 
 # post a tweet to @plant_jones
 def sendTweet(tweetStr):
@@ -34,7 +34,8 @@ class MyStreamer(TwythonStreamer):
         if 'text' in data:
             ascii_tweet = data['text']
             utf_tweet = ascii_tweet.encode('utf-8')
-            sentiment = model.predict(txt2vec.transform([str(utf_tweet)]))[0]
+            vectors = create_vectors([utf_tweet], word_vectorizer, char_vectorizer, lexicons)
+            sentiment = model.predict(vectors)[0]
             # estimate the sentiment of the tweet
 
             print (utf_tweet + '\t' + sentiment + '\n')
