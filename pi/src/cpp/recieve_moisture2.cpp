@@ -42,7 +42,7 @@ int main(int argc, char** argv){
   int i = 0;
   
   printf("Initializing history array");
-  fflush(stdout)
+  fflush(stdout);
   while (i < HISTORY_LEN){
     if(radio.available())
     {     
