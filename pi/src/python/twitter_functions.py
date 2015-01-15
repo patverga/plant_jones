@@ -37,19 +37,22 @@ class MyStreamer(TwythonStreamer):
         MyStreamer.word_vectorizer, MyStreamer.lexicons = load_serial()
 
     def on_success(self, data):
-        if 'text' in data:
-            ascii_tweet = data['text']
-            utf_tweet = ascii_tweet.encode('utf-8')
-            vectors = create_vectors(
-                [utf_tweet], self.word_vectorizer, self.char_vectorizer, self.lexicons)
-            tweet_sentiment = self.model.predict(vectors)[0]
-            # estimate the sentiment of the tweet
+        try:
+            if 'text' in data:
+                ascii_tweet = data['text']
+                utf_tweet = ascii_tweet.encode('utf-8')
+                vectors = create_vectors(
+                    [utf_tweet], self.word_vectorizer, self.char_vectorizer, self.lexicons)
+                tweet_sentiment = self.model.predict(vectors)[0]
+                # estimate the sentiment of the tweet
 
-            if tweet_sentiment == self.target_sentiment:
-                print (utf_tweet + '\t' + tweet_sentiment + '\n')
-                # sendTweet(utf_tweet)
-                # Want to disconnect after the first result?
-                # self.disconnect()
+                if tweet_sentiment == self.target_sentiment:
+                    print (utf_tweet + '\t' + tweet_sentiment + '\n')
+                    # sendTweet(utf_tweet)
+                    # Want to disconnect after the first result?
+                    # self.disconnect()
+        except:
+            pass
 
     def on_error(self, status_code, data):
         print status_code, data
