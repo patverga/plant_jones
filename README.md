@@ -49,7 +49,7 @@ Make Your Own Plant Jones
 - on pi
 ```bash
 # install dependencies
-sudo apt-get install python-numpy python-scipy python-sklearn
+sudo apt-get install python-numpy python-scipy python-sklearn python-joblib
 
 # checkout code
 cd to/plant/jones/root
