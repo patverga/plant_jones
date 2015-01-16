@@ -51,6 +51,11 @@ Make Your Own Plant Jones
 # install dependencies
 sudo apt-get install python-numpy python-scipy python-sklearn python-joblib
 
+# install RF libraries
+git clone git@github.com:edoardoo/RF24.git
+cd RF24
+sudo make && make install
+
 # checkout code
 cd to/plant/jones/root
 git clone git@github.com:patverga/plant_jones.git
@@ -66,5 +71,5 @@ vim .secret_keys
 # start server
 python twitter_functions_server.py
 
-# once that loads, start recieving moisture from arduino
+# start recieving moisture from arduino
 make && ./recieve_moisture
