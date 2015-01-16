@@ -1,26 +1,24 @@
 # #!/usr/bin/env python
 import sys
 import socket
-
+import csv
 from twython import Twython
 from twython import TwythonStreamer
-
 # sys.path.insert(0, '/home/pemma/plant_jones/pi/src/python/sentiment_analysis')
 from sentiment_analysis.sentiment_analysis_model import load_serial, create_vectors
 
-# your twitter consumer and access information
-apiKey = 'bGM1BfpCh5d9UpsXFSAlvSRjE'
-apiSecret = 'SquBbg9kQ1Zz6YxmNG2vJwlnoL8zinLdXEgdanFb4686KOmPms'
-accessToken = '2959173920-PvIHay0j4KQicFml2MQXV2ZfDnWR1qbea55Qr0H'
-accessTokenSecret = 'Ky2XMQ46rZ6jj97O3PHYCL5RIAixRc0JQEWsufn1S7mA1'
-saved_model_dir = 'saved_model/'
+# read in secret keys -> create a csv with your twitter secret keys
+secret_key_file = ".secret_keys"
+with open(secret_key_file, 'r') as f:
+    keys = {type: key for (type, key) in csv.reader(f, delimiter=',')}
 
 # sentiment analysis model
+saved_model_dir = 'saved_model/'
 model, char_vectorizer, word_vectorizer, lexicons = load_serial()
 
 # post a tweet to @plant_jones
 def sendTweet(tweetStr):
-    api = Twython(apiKey, apiSecret, accessToken, accessTokenSecret)
+    api = Twython(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
     api.update_status(status=tweetStr)
     print "Tweeted: " + tweetStr
 
@@ -58,7 +56,7 @@ class MyStreamer(TwythonStreamer):
 # grab a random tweet
 def randomTweetFromStream(sentiment_code):
     target_sentiment = 'positive' if sentiment_code == "1" else 'negative'
-    stream = MyStreamer(apiKey, apiSecret, accessToken, accessTokenSecret)
+    stream = MyStreamer(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
     stream.initialize(target_sentiment)
     stream.statuses.filter(track='water', language='en')
 
