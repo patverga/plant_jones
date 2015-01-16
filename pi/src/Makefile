@@ -4,7 +4,7 @@ prefix := /usr/local
 CCFLAGS=-Ofast -I/usr/include/python2.7
 
 # define all programs
-PROGRAMS = recieve_moisture recieve_moisture2
+PROGRAMS = recieve_moisture
 SOURCES = ${PROGRAMS:=.cpp}
 
 all: ${PROGRAMS} 
