@@ -28,7 +28,7 @@ Note : We found if we tried to have a >= 1 minute delay between arduino transmis
 
 Rasberry Pi
 ----
-We use the Rasberry Pi Model B+ running raspbian. The Pi listens for messages from the arduino in [recieve_moisture](pi/src/recieve_moisture.cpp). Tweets are sent through [twitter_functions](src/pi/twitter_functions_server.py). 
+We use the Rasberry Pi Model B+ running raspbian. The Pi listens for messages from the arduino in [recieve_moisture](pi/src/recieve_moisture.cpp). Tweets are sent through [twitter_functions](src/pi/twitter_functions_server.py) using the [Twython](https://github.com/ryanmcgrath/twython) library. To set up twitter secret keys you can follow this [tutorial](http://www.instructables.com/id/Raspberry-Pi-Twitterbot/)
 
 The serialized sentiment analysis models take almost 10 minutes to load into memory on the pi which is simply unacceptable in this fast-paced digital plant world we live in. To avoid having to reload these models every time we want to tweet, we have them running as a local socket server. When a tweet needs to be sent, recieve_moisture makes a request to the server with the desired sentiment.
 
