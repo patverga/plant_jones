@@ -40,4 +40,31 @@ We use the most discriminative subset of the features from the original paper, w
 
 The training data was taken from [SemEval 2013 workshop Task 2-B](http://www.cs.york.ac.uk/semeval-2013/task2/index.php?id=data). Our F score on the development set is .65 (the full set of features in the paper gets .69).
 
-The model was trained on a desktop computer, serialized, and sent to the pi to save a long long time. If you do this, make sure your joblib versions match.
+The model was trained on a desktop computer, serialized, and sent to the pi to save a long long time. If you do this, make sure your joblib versions match [our models](pi/src/sentiment_analysis/saved_model) were serialized using 0.8.3.
+
+Make Your Own Plant Jones
+----
+- buy parts -> wire things up.
+- load [moisture reader and libraries](arduino/src/) onto arduino.
+- on pi
+```bash
+# install dependencies
+sudo apt-get install python-numpy python-scipy python-sklearn
+
+# checkout code
+cd to/plant/jones/root
+git clone git@github.com:patverga/plant_jones.git
+cd plant_jones/pi/src
+
+# set up your twitter secret keys in the form
+## apiKey,qwebranapikeyglkj
+## apiSecret,labranapisecretio
+## accessToken,alrbranaccessogh
+## accessTokenSecret,arbranaccessecretgihe
+vim .secret_keys
+
+# start server
+python twitter_functions_server.py
+
+# once that loads, start recieving moisture from arduino
+make && ./recieve_moisture
