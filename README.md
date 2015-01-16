@@ -6,6 +6,8 @@ Plant Jones is a semi-intelligent, non-autonomous plant. He is capable of measur
 
 Plant Jones also possesses [not quite developed social skills](https://twitter.com/plant_jones). He is able to parse tweets from human users and determine their sentiment at a rate statistically significantly above random chance. He uses these analyzed tweets to transmit information about his thirst levels in the hopes of garnering pity and water. 
 
+When too dry, Plant Jones scours twitter for negative tweets about water to display his sadness in a way relevant to his needs. When he is wattered, Plant Jones tweets a positive tweet about water signaling how happy he is.
+
 Parts
 ----
 - 1x Arduino Uno
@@ -26,11 +28,9 @@ Note : We found if we tried to have a >= 1 minute delay between arduino transmis
 
 Rasberry Pi
 ----
-We use the Rasberry Pi Model B+ running raspbian. The pi recieves the moisture reading from the arduino every hour. If the moisture level is too low, Plant Jones scours twitter for negative tweets about water to display his sadness in a way relevant to his needs. If the moisture levels gain a sudden spike, Plant Jones tweets a positive tweet about water signaling how happy he is.
+We use the Rasberry Pi Model B+ running raspbian. The Pi listens for messages from the arduino in [recieve_moisture](pi/src/recieve_moisture.cpp). Tweets are sent through [twitter_functions](src/pi/twitter_functions_server.py). 
 
-The Pi listens for messages from the arduino in [recieve_moisture](pi/src/recieve_moisture.cpp). Tweets are sent through [twitter_functions](src/pi/twitter_functions_server.py). The serialized sentiment analysis models take almost 10 minutes to load into memory on the pi which is simply unacceptable in this fast-paced digital plant world we live in. 
-
-To avoid having to reload these models every time we want to tweet, we have them running as a local socket server. When a tweet needs to be sent, recieve_moisture makes a request to the server with the desired sentiment.
+The serialized sentiment analysis models take almost 10 minutes to load into memory on the pi which is simply unacceptable in this fast-paced digital plant world we live in. To avoid having to reload these models every time we want to tweet, we have them running as a local socket server. When a tweet needs to be sent, recieve_moisture makes a request to the server with the desired sentiment.
 
 Sentiment Analysis
 ----
