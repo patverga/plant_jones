@@ -16,7 +16,7 @@ Parts
 
 Arduino
 ----
-The moisture sensor is attached to the arduino on the 5v pin and an analog pin (we use A5).
+The moisture sensor is attached to the arduino on the 5v pin and analog pin A5. The arduino [measures the moisture](arduino/src/moisture/moisture.ino) level every 30 seconds and sends it to the pi over rf.
 
 Wireless
 ----
@@ -28,11 +28,15 @@ Rasberry Pi
 ----
 We use the Rasberry Pi Model B+ running raspbian. The pi recieves the moisture reading from the arduino every hour. If the moisture level is too low, Plant Jones scours twitter for negative tweets about water to display his sadness in a way relevant to his needs. If the moisture levels gain a sudden spike, Plant Jones tweets a positive tweet about water signaling how happy he is.
 
+The Pi listens for messages from the arduino in [recieve_moisture](pi/src/recieve_moisture.cpp). Tweets are sent through [twitter_functions](src/pi/twitter_functions_server.py). The serialized sentiment analysis models take almost 10 minutes to load into memory on the pi which is simply unacceptable in this fast-paced digital plant world we live in. 
+
+To avoid having to reload these models every time we want to tweet, we have them running as a local socket server. When a tweet needs to be sent, recieve_moisture makes a request to the server with the desired sentiment.
+
 Sentiment Analysis
 ----
 We base our sentiment analyis model on ["Mohammad, Saif M., Svetlana Kiritchenko, and Xiaodan Zhu. "NRC-Canada: Building the state-of-the-art in sentiment analysis of tweets." arXiv preprint arXiv:1308.6242 (2013)."](http://www.umiacs.umd.edu/~saif/WebPages/Abstracts/NRC-SentimentAnalysis.htm). 
     
-We use the most discriminative subset of the features from the original paper, word and char ngrams and lexicon dictionaries. Following the original, we train an SVM model with tuned parameters: rbf kernel, C=100, gamma=.0001. This is all done in [scikit-learn](http://scikit-learn.org/stable/) with a little help from [nltk](http://www.nltk.org/).
+We use the most discriminative subset of the features from the original paper, word and char ngrams and lexicon dictionaries. We train an SVM model with tuned parameters: rbf kernel, C=100, gamma=.0001. This is all done in [scikit-learn](http://scikit-learn.org/stable/) with a little help from [nltk](http://www.nltk.org/).
 
 The training data was taken from [SemEval 2013 workshop Task 2-B](http://www.cs.york.ac.uk/semeval-2013/task2/index.php?id=data). Our F score on the development set is .65 (the full set of features in the paper gets .69).
 
