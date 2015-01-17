@@ -6,8 +6,9 @@
 #include <Python.h>
 
 #define MAX_DIGITS 4
-#define HISTORY_LEN 1
-#define DELAY 1000
+#define HISTORY_LEN 5 
+#define READ_DELAY 1000 // 1 second
+#define TWEET_DELAY 3600000 // 1 hour
 
 using namespace std;
 
@@ -15,8 +16,8 @@ RF24 radio(RPI_BPLUS_GPIO_J8_15,RPI_BPLUS_GPIO_J8_24, BCM2835_SPI_SPEED_8MHZ);
 
 // Radio pipe addresses for the 2 nodes to communicate.
 const uint8_t pipes[][6] = {"1Node","2Node"};
-const char* pyFileName = "/home/pemma/plant_jones/pi/src/python/twitter_functions.py";
-const int DRY_THRESHOLD = 600;
+const char* pyFileName = "/home/pemma/plant_jones/pi/src/send_tweet_client.py";
+const int DRY_THRESHOLD = 500;
 
 void getMoisture(int &buffer);
 int avg(int* arr, int len);
@@ -35,6 +36,7 @@ int main(int argc, char** argv){
   
   FILE* pyFile;
   int moistureHistory [5] = {};
+  int currentMoisture;
   int lastSentiment = 1;
   int currentSentiment = 1;
   char ** args = (char**) malloc(sizeof(char*));
@@ -47,7 +49,7 @@ int main(int argc, char** argv){
     if(radio.available())
     {     
         getMoisture(moistureHistory[i]);
-        delay(DELAY);
+        delay(READ_DELAY);
         i++;
     } 
   }
@@ -56,30 +58,32 @@ int main(int argc, char** argv){
         // get moisture reading from arduino 
         int historyIndex = i % HISTORY_LEN;       
         getMoisture(moistureHistory[historyIndex]);
-       
+        currentMoisture = avg(moistureHistory, HISTORY_LEN);
+
         // if moisture is too low
-        if (lastSentiment && moistureHistory[historyIndex] < DRY_THRESHOLD)
+        if (lastSentiment && currentMoisture < DRY_THRESHOLD)
             currentSentiment = 0;
-        else if(!lastSentiment && avg(moistureHistory, HISTORY_LEN) > DRY_THRESHOLD){
+        else if(!lastSentiment && currentMoisture > DRY_THRESHOLD){
             currentSentiment = 1;
         }
        
         // we need water or got watered, send tweet
         if (currentSentiment != lastSentiment){
             sprintf(args[0], "%d", currentSentiment);
+            Py_Initialize();
             pyFile = fopen( pyFileName,"r");
             Py_SetProgramName(argv[0]);  /* optional but recommended */
-            Py_Initialize();
             PySys_SetArgv(1, args);
             PyRun_SimpleFile(pyFile, pyFileName);
             Py_Finalize();
             fclose(pyFile);
+            delay(TWEET_DELAY);
         }
 
         printf("Got moisture %d (sentiment=%d)\n", moistureHistory[historyIndex], currentSentiment);	
         lastSentiment = currentSentiment;
         i++;
-        delay(DELAY);			        
+        delay(READ_DELAY);			        
    }
   } // forever loop
 
