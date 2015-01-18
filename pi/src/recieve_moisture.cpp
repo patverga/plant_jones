@@ -77,10 +77,11 @@ int main(int argc, char** argv){
             PyRun_SimpleFile(pyFile, pyFileName);
             Py_Finalize();
             fclose(pyFile);
+            printf("Sleeping to not spam twitter");
             delay(TWEET_DELAY);
         }
 
-        printf("Got moisture %d (sentiment=%d)\n", moistureHistory[historyIndex], currentSentiment);	
+        printf("Got moisture %d (sentiment=%d)\n", currentMoisture, currentSentiment);	
         lastSentiment = currentSentiment;
         i++;
         delay(READ_DELAY);			        
