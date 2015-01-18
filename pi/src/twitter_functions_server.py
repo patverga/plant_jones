@@ -10,11 +10,6 @@ from twython import Twython, TwythonError
 from twython import TwythonStreamer
 from sentiment_analysis.sentiment_analysis_model import load_serial, create_vectors
 
-# need to pad utf with zeroes
-emoji_dict = {'droplet': u'\U0001F4A7', 'sprout': u'\U0001F331', 'splash': u'\U0001F4A6', 'sep': u'\U0001F4AA',
-              'pute': u'\U0001F4BB',
-              'palmtree': u'\U0001F334', 'cactus': u'\U0001F335', 'witness': u'\U0001F64C', 'sunwater': u'\U0001F305'}
-
 
 # post a tweet to @plant_jones
 def send_tweet(tweet_str):
@@ -24,33 +19,43 @@ def send_tweet(tweet_str):
 
 
 def respond_to_mentions():
-    emojis = [emoji_dict[random.choice(emoji_dict.keys())] for i in range(3)]
-    mention_response = u" Hi! I'm an artificially intelligent plant. " \
-                       u"I send negative tweets about water when I'm thirsty and positive ones when I'm not. " + u''.join(emojis)
-
-    twitter = Twython(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
-    mentions = twitter.get_mentions_timeline()
+    # keep track of the last response id so we know where we left off
     with open('.last_response', 'r') as response_file:
         last_response_id = response_file.readline()[:-1]
-    new_response_id = last_response_id
+    new_response_id = False
+
+    twitter = Twython(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
+    mentions = twitter.get_mentions_timeline(
+        since_id=last_response_id) if last_response_id else twitter.get_mentions_timeline()
     if mentions:
-        # Remember the most recent tweet id, which will be the one at index zero.
         for mention in mentions:
             who = mention['user']['screen_name']
-            id_string = mention['id_str']
-            if id_string == last_response_id:
-                break
-            else:
-                new_response_id = id_string
-                try:
-                    message = u'@' + who + mention_response
-                    twitter.update_status(status=message, in_reply_to_status_id=id_string)
-                except:
-                    pass
+            mention_id_string = mention['id_str']
+            mention_text = mention['text']
+            response_count = user_response_counts[who] if who in user_response_counts.keys() else 0
+            print who, mention_id_string, mention_text
 
+            # save the newest message id so we can start at that point next time
+            if not new_response_id:
+                new_response_id = True
+                with open('.last_response', 'w') as response_file:
+                    response_file.write(str(mention_id_string) + "\n")
+            try:
+                if response_count is 0 or (response_count is 1 and '?' in mention_text):
+                    # choose correct response and append 3 random emojis
+                    message = u'@' + who + responses[response_count] + \
+                              u''.join([emoji_dict[random.choice(emoji_dict.keys())] for i in range(3)])
+                    print 'Responding to ' + who + ' with message : ' + message
+                    # twitter.update_status(status=message, in_reply_to_status_id=id_string)
+                    user_response_counts[who] = response_count + 1
 
-    with open('.last_response', 'w') as response_file:
-            response_file.write(new_response_id+"\n")
+            except:
+                pass
+
+    # file keeping track of how many responses each user has gotten
+    with open(".responded_users", 'w') as responded_user_file:
+        responded_user_file.writelines(
+            [user + ',' + str(count) + '\n' for (user, count) in user_response_counts.iteritems()])
 
 
 # grab a random tweet
@@ -123,24 +128,41 @@ class TwitterServer(asyncore.dispatcher):
 
 # main loop running the server
 def mention_check_loop():
-    # only check mentions after delay
-    mention_check_delay = 1800.0 # 30 mins
     while True:
         print "Checking for mentions"
         respond_to_mentions()
-        time.sleep(mention_check_delay)
+        # only check mentions after delay random between [30 min, 1 hour]
+        time.sleep(random.randrange(1800, 3600))
 
+
+####### initializing things ########
 
 ## read in secret keys -> create a csv with your twitter secret keys
 with open(".secret_keys", 'r') as f:
     keys = {key: value for (key, value) in csv.reader(f, delimiter=',')}
+
 ## filter offensive words so plant jones isn't a racist
 with open(".filter_words", 'r') as f:
     filter_set = set([word[:-1] for word in f])
 
+## read in user response counts so we dont spam people
+with open(".responded_users", 'r') as f:
+    user_response_counts = {key: int(value) for (key, value) in csv.reader(f, delimiter=',')}
+
+## dict of emojis plant jones randomly responds with, need to pad utf with zeroes
+emoji_dict = {'droplet': u'\U0001F4A7', 'sprout': u'\U0001F331', 'splash': u'\U0001F4A6', 'sep': u'\U0001F4AA',
+              'pute': u'\U0001F4BB',
+              'palmtree': u'\U0001F334', 'cactus': u'\U0001F335', 'witness': u'\U0001F64C', 'sunwater': u'\U0001F305'}
+
+## responses if people reply to plant_jones
+responses = [u" Hi! I'm an artificially intelligent plant. "
+             u"I send negative tweets about water when I'm thirsty and positive ones when I'm not.",
+             u" I'm a plant, remember to drink your water."
+]
+
 ## sentiment analysis model
 model, char_vectorizer, word_vectorizer, lexicons = load_serial()
 
-## initialize the server
+## start the server
 server = TwitterServer('localhost', 6969)
 mention_check_loop()
