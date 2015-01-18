@@ -42,7 +42,7 @@ if __name__ == "__main__":
     client = TwitterClient('localhost', 6969)
     try:
         # Send data
-        message = sys.argv[1]
+        message = sys.argv[0]
         print >> sys.stderr, 'sending "%s"' % message
         client.send_command(message)
         asyncore.loop(count=1)
