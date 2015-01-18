@@ -53,10 +53,11 @@ class MyStreamer(TwythonStreamer):
                 # estimate the sentiment of the tweet
                 tweet_sentiment = str(model.predict(vectors)[0])
                 if tweet_sentiment == self.target_sentiment:
-                    print (utf_tweet + '\t' + tweet_sentiment + '\n')
-                    # send_tweet(utf_tweet)
-                    # Want to disconnect after the first result?
-                    self.disconnect()
+                    if True not in [w in filter_set for w in utf_tweet.split(' ')]:
+                        print (utf_tweet + '\t' + tweet_sentiment + '\n')
+                        # send_tweet(utf_tweet)
+                        # Want to disconnect after the first result?
+                        self.disconnect()
         except:
             pass
 
@@ -109,6 +110,9 @@ def mention_check_loop():
 ## read in secret keys -> create a csv with your twitter secret keys
 with open(".secret_keys", 'r') as f:
     keys = {key: value for (key, value) in csv.reader(f, delimiter=',')}
+## filter offensive words so plant jones isn't a racist
+with open(".filter_words", 'r') as f:
+    filter_set = set([word[:-1] for word in f])
 
 ## sentiment analysis model
 model, char_vectorizer, word_vectorizer, lexicons = load_serial()
