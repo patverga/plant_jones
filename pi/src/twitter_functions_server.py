@@ -4,29 +4,53 @@ import csv
 import socket
 import threading
 import time
+import random
 
-from twython import Twython
+from twython import Twython, TwythonError
 from twython import TwythonStreamer
 from sentiment_analysis.sentiment_analysis_model import load_serial, create_vectors
+
+# need to pad utf with zeroes
+emoji_dict = {'droplet': u'\U0001F4A7', 'sprout': u'\U0001F331', 'splash': u'\U0001F4A6', 'sep': u'\U0001F4AA',
+              'pute': u'\U0001F4BB',
+              'palmtree': u'\U0001F334', 'cactus': u'\U0001F335', 'witness': u'\U0001F64C', 'sunwater': u'\U0001F305'}
 
 
 # post a tweet to @plant_jones
 def send_tweet(tweet_str):
-    api = Twython(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
-    api.update_status(status=tweet_str)
+    twitter = Twython(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
+    twitter.update_status(status=tweet_str)
     print "Tweeted: " + tweet_str
 
 
 def respond_to_mentions():
+    emojis = [emoji_dict[random.choice(emoji_dict.keys())] for i in range(3)]
+    mention_response = u" Hi! I'm an artificially intelligent plant. " \
+                       u"I send negative tweets about water when I'm thirsty and positive ones when I'm not. " + u''.join(emojis)
+
     twitter = Twython(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
     mentions = twitter.get_mentions_timeline()
+    with open('.last_response', 'r') as response_file:
+        last_response_id = response_file.readline()[:-1]
+    new_response_id = last_response_id
     if mentions:
         # Remember the most recent tweet id, which will be the one at index zero.
         for mention in mentions:
             who = mention['user']['screen_name']
-            text = mention['text']
-            theId = mention['id_str']
-            print(who, text, theId)
+            id_string = mention['id_str']
+            if id_string == last_response_id:
+                break
+            else:
+                new_response_id = id_string
+                try:
+                    message = u'@' + who + mention_response
+                    twitter.update_status(status=message, in_reply_to_status_id=id_string)
+                except:
+                    pass
+
+
+    with open('.last_response', 'w') as response_file:
+            response_file.write(new_response_id+"\n")
 
 
 # grab a random tweet
@@ -100,7 +124,7 @@ class TwitterServer(asyncore.dispatcher):
 # main loop running the server
 def mention_check_loop():
     # only check mentions after delay
-    mention_check_delay = 30.0  # 1800.0 # 30 mins
+    mention_check_delay = 1800.0 # 30 mins
     while True:
         print "Checking for mentions"
         respond_to_mentions()
