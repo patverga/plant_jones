@@ -41,12 +41,13 @@ def respond_to_mentions():
                 with open('.last_response', 'w') as response_file:
                     response_file.write(str(mention_id_string) + "\n")
             try:
+                # respond to first mention, or second mention if it contains a '?'
                 if response_count is 0 or (response_count is 1 and '?' in mention_text):
                     # choose correct response and append 3 random emojis
                     message = u'@' + who + responses[response_count] + \
                               u''.join([emoji_dict[random.choice(emoji_dict.keys())] for i in range(3)])
                     print 'Responding to ' + who + ' with message : ' + message
-                    # twitter.update_status(status=message, in_reply_to_status_id=id_string)
+                    twitter.update_status(status=message, in_reply_to_status_id=mention_id_string)
                     user_response_counts[who] = response_count + 1
 
             except:
@@ -84,7 +85,7 @@ class MyStreamer(TwythonStreamer):
                 if tweet_sentiment == self.target_sentiment:
                     if True not in [w in filter_set for w in utf_tweet.split(' ')]:
                         print (utf_tweet + '\t' + tweet_sentiment + '\n')
-                        # send_tweet(utf_tweet)
+                        send_tweet(utf_tweet)
                         # Want to disconnect after the first result?
                         self.disconnect()
         except:
@@ -157,8 +158,7 @@ emoji_dict = {'droplet': u'\U0001F4A7', 'sprout': u'\U0001F331', 'splash': u'\U0
 ## responses if people reply to plant_jones
 responses = [u" Hi! I'm an artificially intelligent plant. "
              u"I send negative tweets about water when I'm thirsty and positive ones when I'm not.",
-             u" I'm a plant, remember to drink your water."
-]
+             u" I'm a plant, remember to drink your water."]
 
 ## sentiment analysis model
 model, char_vectorizer, word_vectorizer, lexicons = load_serial()
