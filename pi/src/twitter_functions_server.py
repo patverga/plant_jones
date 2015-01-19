@@ -11,20 +11,35 @@ from twython import TwythonStreamer
 from sentiment_analysis.sentiment_analysis_model import load_serial, create_vectors
 
 
-# post a tweet to @plant_jones
-def send_tweet(tweet_str):
-    twitter = Twython(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
-    twitter.update_status(status=tweet_str)
-    print "Tweeted: " + tweet_str
-
+def follow_new_followers():
+    """
+    Checks to see if any new users have followed us. If they have, follow them back.
+    """
+    try:
+        # get the set of people we are currently following
+        friend_set = set()
+        for friend in twitter.get_friends_list()['users']:
+            friend_set.add(friend['screen_name'])
+        # iterate over users following us
+        for follower in twitter.get_followers_list()['users']:
+            name = follower['screen_name']
+            # if we arent following a follower, follow them
+            if name not in friend_set:
+                print 'Following our new friend : ' + name
+                twitter.create_friendship(screen_name=name, follow="true")
+    except TwythonError as e:
+        # print e
+        pass
 
 def respond_to_mentions():
+    """
+    Checks to see if any new tweets have mentioned us. If they have, respond
+    """
     # keep track of the last response id so we know where we left off
     with open('.last_response', 'r') as response_file:
         last_response_id = response_file.readline()[:-1]
     new_response_id = False
 
-    twitter = Twython(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
     mentions = twitter.get_mentions_timeline(
         since_id=last_response_id) if last_response_id else twitter.get_mentions_timeline()
     if mentions:
@@ -59,10 +74,14 @@ def respond_to_mentions():
             [user + ',' + str(count) + '\n' for (user, count) in user_response_counts.iteritems()])
 
 
-# grab a random tweet
 def random_tweet_from_stream(sentiment_code):
+    """
+    When called, finds a random tweet from the twitter stream that contains the word water
+    and has the target sentiment
+    :param sentiment_code: 0 (negative) or 1 (positive), corresponding to the target sentiment
+    """
     # initialize stream using secret keys
-    stream = MyStreamer(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
+    stream = TwitterSentimentStreamer(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
     stream.target_sentiment = "\"" + ('positive' if sentiment_code == "1" else 'negative') + "\""
     print("Looking for tweets with " + stream.target_sentiment + " sentiment")
     # we only want english tweets that contain the word water
@@ -70,7 +89,11 @@ def random_tweet_from_stream(sentiment_code):
 
 
 # class to handle streaming random tweets
-class MyStreamer(TwythonStreamer):
+class TwitterSentimentStreamer(TwythonStreamer):
+    """
+    Class that extends TwythonStreamer:
+    Handles finding tweets of a given sentiment and then retweets them
+    """
     target_sentiment = '\"negative\"'
 
     def on_success(self, data):
@@ -89,7 +112,8 @@ class MyStreamer(TwythonStreamer):
                         if self.target_sentiment == '\"negative\"' and len(utf_tweet) <= 130:
                             utf_tweet += ' #thirsty'
                         print (utf_tweet + '\t' + tweet_sentiment + '\n')
-                        send_tweet(utf_tweet)
+                        twitter.update_status(status=utf_tweet)
+                        print "Tweeted: " + utf_tweet
                         # Want to disconnect after the first result?
                         self.disconnect()
         except Exception, e:
@@ -102,6 +126,10 @@ class MyStreamer(TwythonStreamer):
 
 # message handle for the twitter server
 class MessageHandler(asyncore.dispatcher_with_send):
+    """
+    Helper class to handle the messages received by the TwitterServer socket server:
+    The message contains a target sentiment which we use to initiate a random tweet.
+    """
     def handle_read(self):
         data = self.recv(8192)
         if data:
@@ -111,6 +139,9 @@ class MessageHandler(asyncore.dispatcher_with_send):
 
 # socket server
 class TwitterServer(asyncore.dispatcher):
+    """
+    Socket server that listens for incoming messages
+    """
     def __init__(self, host, port):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -134,10 +165,15 @@ class TwitterServer(asyncore.dispatcher):
 
 # main loop running the server
 def mention_check_loop():
+    """
+    Checks to see if we have been mentioned in any tweets or have any new followers
+    """
     while True:
-        print "Checking for mentions"
+        print "Checking for mentions."
         respond_to_mentions()
-        # only check mentions after delay random between [30 min, 1 hour]
+        print 'Checking for new followers.'
+        follow_new_followers()
+        # only check after random delay between [30 min, 1 hour]
         time.sleep(random.randrange(1800, 3600))
 
 
@@ -158,7 +194,7 @@ with open(".responded_users", 'r') as f:
 ## dict of emojis plant jones randomly responds with, need to pad utf with zeroes
 emoji_dict = {'droplet': u'\U0001F4A7', 'sprout': u'\U0001F331', 'splash': u'\U0001F4A6', 'sep': u'\U0001F4AA',
               'pute': u'\U0001F4BB',
-              'palmtree': u'\U0001F334', 'cactus': u'\U0001F335', 'sunwater': u'\U0001F305'} # 'witness': u'\U0001F64C'
+              'palmtree': u'\U0001F334', 'cactus': u'\U0001F335', 'sunwater': u'\U0001F305'}  # 'witness': u'\U0001F64C'
 
 ## responses if people reply to plant_jones
 responses = [u" Hi! I'm an artificially intelligent plant. "
@@ -168,6 +204,10 @@ responses = [u" Hi! I'm an artificially intelligent plant. "
 ## sentiment analysis model
 model, char_vectorizer, word_vectorizer, lexicons = load_serial()
 
+## twiython api object
+twitter = Twython(keys['apiKey'], keys['apiSecret'], keys['accessToken'], keys['accessTokenSecret'])
+
 ## start the server
 server = TwitterServer('localhost', 6969)
 mention_check_loop()
+follow_new_followers()
