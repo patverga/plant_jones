@@ -11,6 +11,7 @@
 #define TWEET_DELAY 3600000 // 1 hour
 
 using namespace std;
+std::srand(std::time(NULL));
 
 RF24 radio(RPI_BPLUS_GPIO_J8_15,RPI_BPLUS_GPIO_J8_24, BCM2835_SPI_SPEED_8MHZ);
 
@@ -18,12 +19,15 @@ RF24 radio(RPI_BPLUS_GPIO_J8_15,RPI_BPLUS_GPIO_J8_24, BCM2835_SPI_SPEED_8MHZ);
 const uint8_t pipes[][6] = {"1Node","2Node"};
 const char* pyFileName = "/home/pemma/plant_jones/pi/src/socket_client.py";
 const int DRY_THRESHOLD = 500;
+const int minDelay = 3600000, maxDelay = 6*3600000;
 
+int randomDelay;
 void getMoisture(int &buffer);
 int avg(int* arr, int len);
 
-int main(int argc, char** argv){
 
+int main(int argc, char** argv)
+{
   // Setup and configure rf radio
   radio.begin();
   // optionally, increase the delay between retries & # of retries
@@ -37,54 +41,42 @@ int main(int argc, char** argv){
   FILE* pyFile;
   int moistureHistory [5] = {};
   int currentMoisture;
-  int lastSentiment = 1;
-  int currentSentiment = 1;
+  int currentSentiment;
   char ** args = (char**) malloc(sizeof(char*));
   args[0] = (char*) malloc(MAX_DIGITS*sizeof(char));
-  int i = 0;
-  
+
   printf("Initializing history array");
   fflush(stdout);
-  while (i < HISTORY_LEN){
-    if(radio.available())
-    {     
-        getMoisture(moistureHistory[i]);
-        delay(READ_DELAY);
-        i++;
-    } 
-  }
   while(true){
-    if(radio.available()){
-        // get moisture reading from arduino 
-        int historyIndex = i % HISTORY_LEN;       
-        getMoisture(moistureHistory[historyIndex]);
+    // take a  few samples to average
+      int i = 0;
+      while (i < HISTORY_LEN){
+        if(radio.available())
+        {
+            getMoisture(moistureHistory[i]);
+            delay(READ_DELAY);
+            i++;
+        }
+      }
         currentMoisture = avg(moistureHistory, HISTORY_LEN);
+        // if moisture is too low, set negative sentiment
+        currentSentiment = currentMoisture < DRY_THRESHOLD? 0: 1;
+        printf("Got moisture %d (sentiment=%d)\n", currentMoisture, currentSentiment);
 
-        // if moisture is too low
-        if (lastSentiment && currentMoisture < DRY_THRESHOLD)
-            currentSentiment = 0;
-        else if(!lastSentiment && currentMoisture > DRY_THRESHOLD){
-            currentSentiment = 1;
-        }
-       
-        // we need water or got watered, send tweet
-        if (currentSentiment != lastSentiment){
-            sprintf(args[0], "%d", currentSentiment);
-            Py_Initialize();
-            pyFile = fopen( pyFileName,"r");
-            Py_SetProgramName(argv[0]);  /* optional but recommended */
-            PySys_SetArgv(1, args);
-            PyRun_SimpleFile(pyFile, pyFileName);
-            Py_Finalize();
-            fclose(pyFile);
-            printf("Sleeping to not spam twitter");
-            delay(TWEET_DELAY);
-        }
+        // send tweet
+        sprintf(args[0], "%d", currentSentiment);
+        Py_Initialize();
+        pyFile = fopen( pyFileName,"r");
+        Py_SetProgramName(argv[0]);  /* optional but recommended */
+        PySys_SetArgv(1, args);
+        PyRun_SimpleFile(pyFile, pyFileName);
+        Py_Finalize();
+        fclose(pyFile);
 
-        printf("Got moisture %d (sentiment=%d)\n", currentMoisture, currentSentiment);	
-        lastSentiment = currentSentiment;
-        i++;
-        delay(READ_DELAY);			        
+        // sleep for random time between 1 and 6 hours
+        randomDelay = minDelay + (rand() % ((maxDelay - minDelay) + 1));
+        printf("Sleeping %d to not spam twitter", randomDelay);
+        delay(randomDelay);
    }
   } // forever loop
 
