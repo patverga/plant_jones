@@ -11,8 +11,6 @@
 #define TWEET_DELAY 3600000 // 1 hour
 
 using namespace std;
-std::srand(std::time(NULL));
-
 RF24 radio(RPI_BPLUS_GPIO_J8_15,RPI_BPLUS_GPIO_J8_24, BCM2835_SPI_SPEED_8MHZ);
 
 // Radio pipe addresses for the 2 nodes to communicate.
@@ -28,6 +26,8 @@ int avg(int* arr, int len);
 
 int main(int argc, char** argv)
 {
+  srand (time(NULL));
+
   // Setup and configure rf radio
   radio.begin();
   // optionally, increase the delay between retries & # of retries
@@ -45,10 +45,9 @@ int main(int argc, char** argv)
   char ** args = (char**) malloc(sizeof(char*));
   args[0] = (char*) malloc(MAX_DIGITS*sizeof(char));
 
-  printf("Initializing history array");
-  fflush(stdout);
   while(true){
     // take a  few samples to average
+      printf("Taking %d MOISTure readings\n", HISTORY_LEN); 
       int i = 0;
       while (i < HISTORY_LEN){
         if(radio.available())
@@ -75,9 +74,9 @@ int main(int argc, char** argv)
 
         // sleep for random time between 1 and 6 hours
         randomDelay = minDelay + (rand() % ((maxDelay - minDelay) + 1));
-        printf("Sleeping %d to not spam twitter", randomDelay);
+        printf("Sleeping %g hours to not spam twitter\n", (double)randomDelay/3600000);
         delay(randomDelay);
-   }
+   
   } // forever loop
 
   return 0;
