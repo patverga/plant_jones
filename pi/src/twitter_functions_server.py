@@ -40,18 +40,18 @@ def respond_to_mentions():
                 new_response_id = True
                 with open('.last_response', 'w') as response_file:
                     response_file.write(str(mention_id_string) + "\n")
-            try:
-                # respond to first mention, or second mention if it contains a '?'
-                if response_count is 0 or (response_count is 1 and '?' in mention_text):
+            # respond to first mention, or second mention if it contains a '?'
+            if response_count is 0 or (response_count is 1 and '?' in mention_text):
+                try:
                     # choose correct response and append 3 random emojis
                     message = u'@' + who + responses[response_count] + \
                               u''.join([emoji_dict[random.choice(emoji_dict.keys())] for i in range(3)])
                     print 'Responding to ' + who + ' with message : ' + message
                     twitter.update_status(status=message, in_reply_to_status_id=mention_id_string)
                     user_response_counts[who] = response_count + 1
-
-            except:
-                pass
+                except Exception, e:
+                    # print e
+                    pass
 
     # file keeping track of how many responses each user has gotten
     with open(".responded_users", 'w') as responded_user_file:
@@ -83,12 +83,17 @@ class MyStreamer(TwythonStreamer):
                 # estimate the sentiment of the tweet
                 tweet_sentiment = str(model.predict(vectors)[0])
                 if tweet_sentiment == self.target_sentiment:
+                    # filter out racist tweets which are evidently pretty common
                     if True not in [w in filter_set for w in utf_tweet.split(' ')]:
+                        # append '#thirsty' to negative tweets that are short enough
+                        if self.target_sentiment == '\"negative\"' and len(utf_tweet) <= 130:
+                            utf_tweet += ' #thirsty'
                         print (utf_tweet + '\t' + tweet_sentiment + '\n')
                         send_tweet(utf_tweet)
                         # Want to disconnect after the first result?
                         self.disconnect()
-        except:
+        except Exception, e:
+            # print e
             pass
 
     def on_error(self, status_code, data):
@@ -153,11 +158,11 @@ with open(".responded_users", 'r') as f:
 ## dict of emojis plant jones randomly responds with, need to pad utf with zeroes
 emoji_dict = {'droplet': u'\U0001F4A7', 'sprout': u'\U0001F331', 'splash': u'\U0001F4A6', 'sep': u'\U0001F4AA',
               'pute': u'\U0001F4BB',
-              'palmtree': u'\U0001F334', 'cactus': u'\U0001F335', 'witness': u'\U0001F64C', 'sunwater': u'\U0001F305'}
+              'palmtree': u'\U0001F334', 'cactus': u'\U0001F335', 'sunwater': u'\U0001F305'} # 'witness': u'\U0001F64C'
 
 ## responses if people reply to plant_jones
 responses = [u" Hi! I'm an artificially intelligent plant. "
-             u"I send negative tweets about water when I'm thirsty and positive ones when I'm not.",
+             u"I send negative tweets about water when thirsty and positive ones when not.",
              u" I'm a plant, remember to drink your water."]
 
 ## sentiment analysis model
