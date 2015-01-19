@@ -6,7 +6,7 @@ Plant Jones is a semi-intelligent, non-autonomous plant. He is capable of measur
 
 Plant Jones also possesses [not quite developed social skills](https://twitter.com/plant_jones). He is able to parse tweets from human users and determine their sentiment at a rate statistically significantly above random chance. He uses these analyzed tweets to transmit information about his thirst levels in the hopes of garnering pity and water. Plant Jones is also able to respond when mentioned in other people's tweets.
 
-When too dry, Plant Jones scours twitter for negative tweets about water to display his sadness in a way relevant to his needs. When he is wattered, Plant Jones tweets a positive tweet about water signaling how happy he is.
+When too dry, Plant Jones scours twitter for negative tweets about water to display his sadness in a way relevant to his needs. When he is watered, Plant Jones tweets a positive tweet about water signaling how happy he is.
 
 Parts
 ----
@@ -18,35 +18,35 @@ Parts
 
 Arduino
 ----
-The moisture sensor is attached to the arduino on the 5v pin and analog pin A5. The arduino [measures the moisture](arduino/src/moisture/moisture.ino) level every 30 seconds and sends it to the pi over rf.
+The moisture sensor is attached to the arduino on the 5v pin and analog pin A5. The Arduino [measures the moisture](arduino/src/moisture/moisture.ino) level every 30 seconds and sends it to the Pi over RF.
 
 Wireless
 ----
-We use this [rf library](https://github.com/edoardoo/RF24) for both the pi and arduino. We based our code off of their examples ([rpi](https://github.com/edoardoo/RF24/blob/master/examples_RPi/gettingstarted.cpp) &  [arduino](https://github.com/edoardoo/RF24/blob/master/examples/GettingStarted/GettingStarted.ino)). Follow their github readme for wiring info.
+We use this [rf library](https://github.com/edoardoo/RF24) for both the Pi and Arduino. We based our code off of their examples ([rpi](https://github.com/edoardoo/RF24/blob/master/examples_RPi/gettingstarted.cpp) &  [arduino](https://github.com/edoardoo/RF24/blob/master/examples/GettingStarted/GettingStarted.ino)). Follow their github readme for wiring info.
 
 Note : We found if we tried to have a >= 1 minute delay between arduino transmissions, it would just silently stop transmitting.
 
 Rasberry Pi
 ----
-We use the Rasberry Pi Model B+ running raspbian. The Pi listens for messages from the arduino in [recieve_moisture](pi/src/recieve_moisture.cpp). Tweets are sent through [twitter_functions](src/pi/twitter_functions_server.py) using the [Twython](https://github.com/ryanmcgrath/twython) library. To set up twitter secret keys you can follow this [tutorial](http://www.instructables.com/id/Raspberry-Pi-Twitterbot/)
+We use the Rasberry Pi Model B+ running raspbian. The Pi listens for messages from the Arduino in [recieve_moisture](pi/src/recieve_moisture.cpp). Tweets are sent through [twitter_functions](src/pi/twitter_functions_server.py) using the [Twython](https://github.com/ryanmcgrath/twython) library. To set up twitter secret keys you can follow this [tutorial](http://www.instructables.com/id/Raspberry-Pi-Twitterbot/)
 
-The serialized sentiment analysis models take almost 10 minutes to load into memory on the pi which is simply unacceptable in this fast-paced digital plant world we live in. To avoid having to reload these models every time we want to tweet, we have them running as a local socket server. When a tweet needs to be sent, recieve_moisture makes a request to the server with the desired sentiment.
+The serialized sentiment analysis models take almost 10 minutes to load into memory on the Pi, which is obviously unacceptable in this fast-paced digital plant world we live in. To avoid having to reload these models every time we want to tweet, we have them running as a local socket server. When a tweet needs to be sent, recieve_moisture makes a request to the server with the desired sentiment.
 
 Sentiment Analysis
 ----
 We base our sentiment analyis model on ["Mohammad, Saif M., Svetlana Kiritchenko, and Xiaodan Zhu. "NRC-Canada: Building the state-of-the-art in sentiment analysis of tweets." arXiv preprint arXiv:1308.6242 (2013)."](http://www.umiacs.umd.edu/~saif/WebPages/Abstracts/NRC-SentimentAnalysis.htm). 
     
-We use the most discriminative subset of the features from the original paper, word and char ngrams and lexicon dictionaries. We train an SVM model with tuned parameters: rbf kernel, C=100, gamma=.0001. This is all done in [scikit-learn](http://scikit-learn.org/stable/) with a little help from [nltk](http://www.nltk.org/).
+We use the most discriminative subset of the features from the original paper: word and character ngrams and sentiment lexicon dictionaries. We train an SVM model with tuned parameters: rbf kernel, C=100, gamma=.0001. This is all done in [scikit-learn](http://scikit-learn.org/stable/) with a little help from [nltk](http://www.nltk.org/).
 
 The training data was taken from [SemEval 2013 workshop Task 2-B](http://www.cs.york.ac.uk/semeval-2013/task2/index.php?id=data). Our F score on the development set is .65 (the full set of features in the paper gets .69).
 
-The model was trained on a desktop computer, serialized, and sent to the pi to save a long long time. If you do this, make sure your joblib versions match [our models](pi/src/sentiment_analysis/saved_model) were serialized using 0.8.3.
+The model was trained on a desktop computer, serialized, and sent to the Pi to save time. If you do this, make sure your joblib versions match [our models](pi/src/sentiment_analysis/saved_model) were serialized using 0.8.3.
 
 Make Your Own Plant Jones
 ----
 - buy parts -> wire things up.
-- load [moisture reader and libraries](arduino/src/) onto arduino.
-- on pi
+- load [moisture reader and libraries](arduino/src/) onto Arduino.
+- on Pi:
 ```bash
 # install dependencies
 sudo apt-get install python-numpy python-scipy python-sklearn python-joblib
