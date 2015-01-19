@@ -4,7 +4,7 @@
 
 Plant Jones is a semi-intelligent, non-autonomous plant. He is capable of measuring, analyzing, and alerting others to his own moisture needs. 
 
-Plant Jones also possesses [not quite developed social skills](https://twitter.com/plant_jones). He is able to parse tweets from human users and determine their sentiment at a rate statistically significantly above random chance. He uses these analyzed tweets to transmit information about his thirst levels in the hopes of garnering pity and water. 
+Plant Jones also possesses [not quite developed social skills](https://twitter.com/plant_jones). He is able to parse tweets from human users and determine their sentiment at a rate statistically significantly above random chance. He uses these analyzed tweets to transmit information about his thirst levels in the hopes of garnering pity and water. Plant Jones is also able to respond when mentioned in other people's tweets.
 
 When too dry, Plant Jones scours twitter for negative tweets about water to display his sadness in a way relevant to his needs. When he is wattered, Plant Jones tweets a positive tweet about water signaling how happy he is.
 
