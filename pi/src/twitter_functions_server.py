@@ -105,11 +105,13 @@ class TwitterSentimentStreamer(TwythonStreamer):
                     [utf_tweet], word_vectorizer, char_vectorizer, lexicons)
                 # estimate the sentiment of the tweet
                 tweet_sentiment = str(model.predict(vectors)[0])
-                if tweet_sentiment == self.target_sentiment:
+                # only keep tweets of correct sentiment, are not replies, and short enough for #thirsty
+                if tweet_sentiment == self.target_sentiment and utf_tweet[0] != '@' and \
+                    (tweet_sentiment is '\"positive\"' or len(utf_tweet) <= 130):
                     # filter out racist tweets which are evidently pretty common
                     if True not in [w in filter_set for w in utf_tweet.split(' ')]:
-                        # append '#thirsty' to negative tweets that are short enough
-                        if self.target_sentiment == '\"negative\"' and len(utf_tweet) <= 130:
+                        # append '#thirsty' to negative tweets
+                        if self.target_sentiment == '\"negative\"':
                             utf_tweet += ' #thirsty'
                         print (utf_tweet + '\t' + tweet_sentiment + '\n')
                         twitter.update_status(status=utf_tweet)

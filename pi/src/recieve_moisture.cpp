@@ -16,7 +16,7 @@ RF24 radio(RPI_BPLUS_GPIO_J8_15,RPI_BPLUS_GPIO_J8_24, BCM2835_SPI_SPEED_8MHZ);
 // Radio pipe addresses for the 2 nodes to communicate.
 const uint8_t pipes[][6] = {"1Node","2Node"};
 const char* pyFileName = "/home/pemma/plant_jones/pi/src/socket_client.py";
-const int DRY_THRESHOLD = 500;
+const int DRY_THRESHOLD = 550;
 const int minDelay = 4*3600000, maxDelay = 12*3600000;
 
 int randomDelay;
