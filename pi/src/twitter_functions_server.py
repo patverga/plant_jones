@@ -187,7 +187,7 @@ with open(".secret_keys", 'r') as f:
 
 ## filter offensive words so plant jones isn't a racist
 with open(".filter_words", 'r') as f:
-    filter_set = set([word[:-1] for word in f])
+    filter_set = set([word[:-1] for word in f] + [word[:-1]+'s' for word in f]) 
 
 ## read in user response counts so we dont spam people
 with open(".responded_users", 'r') as f:
