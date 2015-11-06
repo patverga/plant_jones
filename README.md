@@ -34,7 +34,7 @@ The serialized sentiment analysis models take almost 10 minutes to load into mem
 
 Sentiment Analysis
 ----
-We base our sentiment analyis model on ["Mohammad, Saif M., Svetlana Kiritchenko, and Xiaodan Zhu. "NRC-Canada: Building the state-of-the-art in sentiment analysis of tweets." arXiv preprint arXiv:1308.6242 (2013)."](http://www.umiacs.umd.edu/~saif/WebPages/Abstracts/NRC-SentimentAnalysis.htm). 
+We base our sentiment analyis model on [Mohammad, Saif M., Svetlana Kiritchenko, and Xiaodan Zhu. *NRC-Canada: Building the state-of-the-art in sentiment analysis of tweets.* (2013).](http://www.aclweb.org/anthology/S13-2053). 
     
 We use the most discriminative subset of the features from the original paper: word and character ngrams and sentiment lexicon dictionaries. We train an SVM model with tuned parameters: rbf kernel, C=100, gamma=.0001. This is all done in [scikit-learn](http://scikit-learn.org/stable/) with a little help from [nltk](http://www.nltk.org/).
 
