@@ -26,7 +26,7 @@ We use this [rf library](https://github.com/edoardoo/RF24) for both the Pi and A
 
 Note : We found if we tried to have a >= 1 minute delay between arduino transmissions, it would just silently stop transmitting.
 
-Rasberry Pi
+Raspberry Pi
 ----
 We use the Rasberry Pi Model B+ running raspbian. The Pi listens for messages from the Arduino in [recieve_moisture](pi/src/recieve_moisture.cpp). Tweets are sent through [twitter_functions](src/pi/twitter_functions_server.py) using the [Twython](https://github.com/ryanmcgrath/twython) library. To set up twitter secret keys you can follow this [tutorial](http://www.instructables.com/id/Raspberry-Pi-Twitterbot/)
 
@@ -38,9 +38,9 @@ We base our sentiment analyis model on [Mohammad, Saif M., Svetlana Kiritchenko,
     
 We use the most discriminative subset of the features from the original paper: word and character ngrams and sentiment lexicon dictionaries. We train an SVM model with tuned parameters: rbf kernel, C=100, gamma=.0001. This is all done in [scikit-learn](http://scikit-learn.org/stable/) with a little help from [nltk](http://www.nltk.org/).
 
-The training data was taken from [SemEval 2013 workshop Task 2-B](http://www.cs.york.ac.uk/semeval-2013/task2/index.php?id=data). Our F score on the development set is .65 (the full set of features in the paper gets .69).
+The training data was taken from [SemEval 2013 workshop Task 2-B](https://www.cs.york.ac.uk/semeval-2013/task2/). Our F score on the development set is .65 (the full set of features in the paper gets .69).
 
-The model was trained on a desktop computer, serialized, and sent to the Pi to save time. If you do this, make sure your joblib versions match [our models](pi/src/sentiment_analysis/saved_model) were serialized using 0.8.3.
+The model was trained on a desktop computer, serialized, and sent to the Pi to save time. If you do this, make sure your joblib versions match ours; [our models](pi/src/sentiment_analysis/saved_model) were serialized using 0.8.3.
 
 Make Your Own Plant Jones
 ----
